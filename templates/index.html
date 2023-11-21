@@ -1,57 +1,69 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Accelerometer Demo</title>
 
-<!-- Update the JavaScript code to use deviceorientation for gyroscope data -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const accelButton = document.getElementById('accelPermsButton');
-            
-                accelButton.addEventListener('click', function() {
-                    DeviceMotionEvent.requestPermission().then(response => {
-                        if (response == 'granted') {
-                            // Add a listener to get smartphone orientation 
-                            // in the alpha-beta-gamma axes (units in degrees)
-                            window.addEventListener('deviceorientation', (event) => {
-                                const gyroscopeData = {
-                                    alpha: event.alpha,
-                                    beta: event.beta,
-                                    gamma: event.gamma
-                                };
-            
-                                // Send gyroscope data to Flask server
-                                sendGyroscopeData(gyroscopeData);
-                            });
-                        }
-                    });
-                });
-            
-                function sendGyroscopeData(data) {
-                    // Make a POST request to your Flask server
-                    fetch('/store_gyroscope_data', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Success:', data);
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                    });
-                }
-            });
-    </script>
-        
 
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Accelerometer Demo</title>
+        
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                    const accelButton = document.getElementById('accelPermsButton');
+                    let lastSentTime = 0;
+                    const delayBetweenRequests = 150; // this value will need to be tuned to get everything working right
+
+                    accelButton.addEventListener('click', function() {
+                        DeviceMotionEvent.requestPermission().then(response => {
+                            if (response == 'granted') {
+                                // Add a listener to get smartphone orientation 
+                                // in the alpha-beta-gamma axes (units in degrees)
+                                window.addEventListener('deviceorientation', (event) => {
+                                    const gyroscopeData = {
+                                        alpha: event.alpha,
+                                        beta: event.beta,
+                                        gamma: event.gamma
+                                    };
+
+                                    // Check if enough time has passed since the last request
+                                    const currentTime = Date.now();
+                                    if (currentTime - lastSentTime >= delayBetweenRequests) {
+                                        // Send gyroscope data to Flask server
+                                        sendGyroscopeData(gyroscopeData);
+
+                                        // Update the last sent time
+                                        lastSentTime = currentTime;
+                                    }
+                                });
+                            }
+                        });
+                    });
+
+                    function sendGyroscopeData(data) {
+                        // Make a POST request to your Flask server
+                        fetch('/store_gyroscope_data', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
+
+            </script>
     </head>
     <body style="background-color:rgb(30, 78, 62);">
         <button id="accelPermsButton" style="height:80px;"><h1>Get Accelerometer Permissions</h1></button>
