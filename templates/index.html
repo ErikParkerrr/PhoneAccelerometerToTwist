@@ -62,57 +62,53 @@
             position: fixed;
         }
         </style>
-
+<!-- Update the JavaScript code to use deviceorientation for gyroscope data -->
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const accelButton = document.getElementById('accelPermsButton');
-
-            accelButton.addEventListener('click', function() {
-                DeviceMotionEvent.requestPermission().then(response => {
-                    if (response == 'granted') {
-                        // Add a listener to get smartphone acceleration 
-                        // in the XYZ axes (units in m/s^2)
-                        window.addEventListener('devicemotion', (event) => {
-                            const accelerometerData = {
-                                x: event.acceleration.x,
-                                y: event.acceleration.y,
-                                z: event.acceleration.z
-                            };
-
-                            // Send accelerometer data to Flask server
-                            sendAccelerometerData(accelerometerData);
-                        });
-
-                        // Add a listener to get smartphone orientation 
-                        // in the alpha-beta-gamma axes (units in degrees)
-                        window.addEventListener('deviceorientation', (event) => {
-                            console.log(event);
-                        });
-                    }
+            document.addEventListener('DOMContentLoaded', function() {
+                const accelButton = document.getElementById('accelPermsButton');
+            
+                accelButton.addEventListener('click', function() {
+                    DeviceMotionEvent.requestPermission().then(response => {
+                        if (response == 'granted') {
+                            // Add a listener to get smartphone orientation 
+                            // in the alpha-beta-gamma axes (units in degrees)
+                            window.addEventListener('deviceorientation', (event) => {
+                                const gyroscopeData = {
+                                    alpha: event.alpha,
+                                    beta: event.beta,
+                                    gamma: event.gamma
+                                };
+            
+                                // Send gyroscope data to Flask server
+                                sendGyroscopeData(gyroscopeData);
+                            });
+                        }
+                    });
                 });
+            
+                function sendGyroscopeData(data) {
+                    // Make a POST request to your Flask server
+                    fetch('/store_gyroscope_data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+                }
             });
+    </script>
+        
 
-            function sendAccelerometerData(data) {
-                // Make a POST request to your Flask server
-                fetch('/store_accelerometer_data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
-        });
-        </script>
     </head>
-    <body style="background-color:lightblue;">
+    <body style="background-color:rgb(30, 78, 62);">
         <button id="accelPermsButton" style="height:50px;"><h1>Get Accelerometer Permissions</h1></button>
         <div class="indicatorDot" style="left:30%; top:30%;"></div>
     </body>

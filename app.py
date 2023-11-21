@@ -22,9 +22,9 @@ def print_data_thread():
             if data is not None:
                 # Assuming data contains 'x', 'y', and 'z' fields
                 print(data)
-                msg.linear.x = data['x']
-                msg.linear.y = data['y']
-                msg.linear.z = data['z']
+                # msg.linear.x = data['x']
+                # msg.linear.y = data['y']
+                # msg.linear.z = data['z']
                 publisher.publish(msg)
                 data = None
         time.sleep(0.001)
@@ -41,7 +41,14 @@ def store_accelerometer_data():
         data = new_data
     return jsonify({'message': 'Data received successfully'})
 
-    
+@app.route('/store_gyroscope_data', methods=['POST'])
+def store_gyroscope_data():
+    global data
+    new_data = request.get_json()
+    with data_lock:
+        data = new_data
+    return jsonify({'message': 'Gyroscope data received successfully'})
+
 
 if __name__ == '__main__':
     # Start the printing thread
