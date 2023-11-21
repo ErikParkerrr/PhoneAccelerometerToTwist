@@ -20,14 +20,14 @@ def print_data_thread():
     while True:
         with data_lock:
             if data is not None:
-                # Assuming data contains 'x', 'y', and 'z' fields
-                print(data)
-                # msg.linear.x = data['x']
+               
+                #print(data)
+                msg.linear.x = data['gamma']
                 # msg.linear.y = data['y']
-                # msg.linear.z = data['z']
+                msg.angular.z = data['alpha']
                 publisher.publish(msg)
                 data = None
-        time.sleep(0.001)
+                time.sleep(0.01)
 
 @app.route('/')
 def index():

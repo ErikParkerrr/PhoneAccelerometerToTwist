@@ -1,49 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Accelerometer Demo</title>
-
-        <style>
-        .indicatorDot{
-            width: 30px;
-            height: 30px;
-            background-color: #ffab56;
-            border-radius: 50%;
-            position:fixed;
-        }
-        </style>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const accelButton = document.getElementById('accelPermsButton');
-
-        accelButton.addEventListener('click', function() {
-            DeviceMotionEvent.requestPermission().then(response => {
-                if (response == 'granted') {
-                    // Add a listener to get smartphone acceleration 
-                    // in the XYZ axes (units in m/s^2)
-                    window.addEventListener('devicemotion', (event) => {
-                        console.log(event);
-                    });
-
-                    // Add a listener to get smartphone orientation 
-                    // in the alpha-beta-gamma axes (units in degrees)
-                    window.addEventListener('deviceorientation', (event) => {
-                        console.log(event);
-                    });
-                }
-            });
-        });
-    });
-    </script>
-    </head>
-    <body style="background-color:lightblue;">
-        <button id="accelPermsButton" style="height:50px;"><h1>Get Accelerometer Permissions</h1></button>
-        <div class="indicatorDot" style="left:30%; top:30%;"></div>
-    </body>
-</html> -->
-
 
 
 
@@ -53,15 +7,6 @@
         <meta charset="UTF-8">
         <title>Accelerometer Demo</title>
 
-        <style>
-        .indicatorDot {
-            width: 30px;
-            height: 30px;
-            background-color: #ffab56;
-            border-radius: 50%;
-            position: fixed;
-        }
-        </style>
 <!-- Update the JavaScript code to use deviceorientation for gyroscope data -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -109,8 +54,7 @@
 
     </head>
     <body style="background-color:rgb(30, 78, 62);">
-        <button id="accelPermsButton" style="height:50px;"><h1>Get Accelerometer Permissions</h1></button>
-        <div class="indicatorDot" style="left:30%; top:30%;"></div>
+        <button id="accelPermsButton" style="height:80px;"><h1>Get Accelerometer Permissions</h1></button>
     </body>
 </html>
 
