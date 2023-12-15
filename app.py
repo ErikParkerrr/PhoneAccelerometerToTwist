@@ -11,7 +11,7 @@ CORS(app)
 data = None
 data_lock = threading.Lock()
 
-SCALE_X = 0.025
+SCALE_X = 0.009
 SCALE_Z = 0.006
 DEADZONE_WIDTH_Z = 4
 DEADZONE_WIDTH_X = 2
@@ -19,7 +19,7 @@ DEADZONE_WIDTH_X = 2
 def print_data_thread():
     global data
     node = rclpy.create_node('accelerometer_publisher')
-    publisher = node.create_publisher(Twist, 'accelerometer_data', 10)
+    publisher = node.create_publisher(Twist, '/twist_topic', 10)
     msg = Twist()
 
     while True:
@@ -33,20 +33,20 @@ def print_data_thread():
                 else:
                     alpha = (alpha + 180) % 360 - 180
                     scaled_alpha = (abs(alpha) - DEADZONE_WIDTH_Z) * SCALE_Z
-                    msg.angular.z = scaled_alpha if alpha > 0 else -scaled_alpha
-                
+                    scaled_alpha = scaled_alpha if alpha > 0 else -scaled_alpha
                 msg.angular.z = scaled_alpha
 
-                gamma = data['gamma'] 
+                #gamma = data['gamma'] 
+                gamma = -data['beta'] 
                 scaled_gamma = 0.0
                 if abs(gamma) <= DEADZONE_WIDTH_X:
                     scaled_gamma = 0.0
                 else:
                     gamma = gamma-DEADZONE_WIDTH_X*SCALE_X 
                     scaled_gamma = (abs(gamma) - DEADZONE_WIDTH_X) * SCALE_X
-                    scaled_gamma = scaled_gamma if gamma > 0 else -scaled_gamma
-      
-                msg.angular.x = scaled_gamma
+                    scaled_gamma  = scaled_gamma if gamma > 0 else -scaled_gamma
+                msg.linear.x = scaled_gamma
+
                 publisher.publish(msg)
                 data = None
                 time.sleep(0.01)

@@ -18,7 +18,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const accelButton = document.getElementById('accelPermsButton');
                 let lastSentTime = 0;
-                const delayBetweenRequests = 150; // this value will need to be tuned to get everything working right
+                const delayBetweenRequests = 100; // this value will need to be tuned to get everything working right
 
                 accelButton.addEventListener('click', function () {
                     DeviceMotionEvent.requestPermission().then(response => {
