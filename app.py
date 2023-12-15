@@ -11,6 +11,11 @@ CORS(app)
 data = None
 data_lock = threading.Lock()
 
+SCALE_X = 0.025
+SCALE_Z = 0.006
+DEADZONE_WIDTH_Z = 4
+DEADZONE_WIDTH_X = 2
+
 def print_data_thread():
     global data
     node = rclpy.create_node('accelerometer_publisher')
@@ -20,11 +25,28 @@ def print_data_thread():
     while True:
         with data_lock:
             if data is not None:
-               
-                #print(data)
-                msg.linear.x = data['gamma']
-                # msg.linear.y = data['y']
-                msg.angular.z = data['alpha']
+
+                alpha = data['alpha']
+                scaled_alpha = 0.0
+                if abs(alpha) <= DEADZONE_WIDTH_Z:
+                    scaled_alpha = 0.0
+                else:
+                    alpha = (alpha + 180) % 360 - 180
+                    scaled_alpha = (abs(alpha) - DEADZONE_WIDTH_Z) * SCALE_Z
+                    msg.angular.z = scaled_alpha if alpha > 0 else -scaled_alpha
+                
+                msg.angular.z = scaled_alpha
+
+                gamma = data['gamma'] 
+                scaled_gamma = 0.0
+                if abs(gamma) <= DEADZONE_WIDTH_X:
+                    scaled_gamma = 0.0
+                else:
+                    gamma = gamma-DEADZONE_WIDTH_X*SCALE_X 
+                    scaled_gamma = (abs(gamma) - DEADZONE_WIDTH_X) * SCALE_X
+                    scaled_gamma = scaled_gamma if gamma > 0 else -scaled_gamma
+      
+                msg.angular.x = scaled_gamma
                 publisher.publish(msg)
                 data = None
                 time.sleep(0.01)
@@ -48,6 +70,23 @@ def store_gyroscope_data():
     with data_lock:
         data = new_data
     return jsonify({'message': 'Gyroscope data received successfully'})
+
+
+@app.route('/recenter_gyro', methods=['POST'])
+def recenter_gyro():
+    global data
+
+    with data_lock:
+        if data is not None:
+            current_alpha = data['alpha']
+            data['alpha'] = (data['alpha'] - current_alpha) % 360  # Apply offset based on the current alpha
+            if data['alpha'] >= 180:
+                data['alpha'] -= 360  # Convert to range [-180, 180)
+
+    return jsonify({'message': 'Gyro recentered successfully'})
+
+
+
 
 
 if __name__ == '__main__':
