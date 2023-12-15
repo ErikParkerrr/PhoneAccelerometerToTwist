@@ -8,6 +8,7 @@ from geometry_msgs.msg import Twist
 app = Flask(__name__)
 CORS(app)
 
+global data
 data = None
 data_lock = threading.Lock()
 
@@ -19,6 +20,7 @@ DEADZONE_WIDTH_X = 2
 twist_topic_name = '/twist_topic'
 node_name = 'phone_gyro_node'
 
+
 def print_data_thread():
     global data
     node = rclpy.create_node(node_name)
@@ -29,7 +31,9 @@ def print_data_thread():
         with data_lock:
             if data is not None:
 
-                alpha = data['alpha']
+                #alpha = data['alpha']
+                alpha = -data['beta']
+
                 scaled_alpha = 0.0
                 if abs(alpha) <= DEADZONE_WIDTH_Z:
                     scaled_alpha = 0.0
@@ -40,12 +44,13 @@ def print_data_thread():
                 msg.angular.z = scaled_alpha
 
                 #gamma = data['gamma'] 
-                gamma = -data['beta'] 
+                gamma = data['gamma']
                 scaled_gamma = 0.0
                 if abs(gamma) <= DEADZONE_WIDTH_X:
                     scaled_gamma = 0.0
                 else:
-                    gamma = gamma-DEADZONE_WIDTH_X*SCALE_X 
+                    #gamma = gamma-DEADZONE_WIDTH_X*SCALE_X 
+                    scaled_gamma = (gamma + 180) % 360 - 180
                     scaled_gamma = (abs(gamma) - DEADZONE_WIDTH_X) * SCALE_X
                     scaled_gamma  = scaled_gamma if gamma > 0 else -scaled_gamma
                 msg.linear.x = scaled_gamma
@@ -74,7 +79,23 @@ def store_gyroscope_data():
         data = new_data
     return jsonify({'message': 'Gyroscope data received successfully'})
 
+@app.route('/estop_triggered', methods=['GET', 'POST'])
+def estop_triggered():
+    # Reset angular z and linear x values to zero
+    print("here1")
+    with data_lock:
+        global data
+        data = []
+        if data is not None:
+            data['alpha'] = 0  # Set angular z to zero
+            data['beta'] = 0   # Set linear x to zero
+            print("here")
 
+    return 'E-STOP Triggered. Swipe back to the main page to drive again.'
+
+
+
+###THIS DOESN'T WORK
 @app.route('/recenter_gyro', methods=['POST'])
 def recenter_gyro():
     global data

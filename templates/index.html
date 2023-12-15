@@ -18,7 +18,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const accelButton = document.getElementById('accelPermsButton');
                 let lastSentTime = 0;
-                const delayBetweenRequests = 100; // this value will need to be tuned to get everything working right
+                const delayBetweenRequests = 190; // this value will need to be tuned to get everything working right
 
                 accelButton.addEventListener('click', function () {
                     DeviceMotionEvent.requestPermission().then(response => {
@@ -45,7 +45,9 @@
                                 recenterButton.addEventListener('click', function () {
                                     sendRecenterRequest();
                                 });
-                            });
+                         
+                                });
+                            
                         }
                     });
                 });
@@ -67,10 +69,114 @@
                             console.error('Error:', error);
                         });
                 }
-                
+
             });
 
             function sendRecenterRequest() {
+                fetch('/recenter_gyro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Recenter Success:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Recenter Error:', error);
+                    });
+
+
+
+            }
+
+        </script>
+    </head>
+
+<body style="background-color:rgb(30, 78, 62);">
+    <button id="accelPermsButton" style="height:80px;">
+        <h1>Get Accelerometer Permissions</h1>
+    </button>
+    <button id="recenterButton" style="height:80px;"> <!--doesn't work-->
+        <h1>Recenter Gyro</h1>
+    </button>
+    <!DOCTYPE html>
+    <html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <title>Accelerometer Demo</title>
+    
+    
+    
+        <!DOCTYPE html>
+        <html lang="en">
+    
+        <head>
+            <meta charset="UTF-8">
+            <title>Accelerometer Demo</title>
+    
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const accelButton = document.getElementById('accelPermsButton');
+                    let lastSentTime = 0;
+                    const delayBetweenRequests = 100; // this value will need to be tuned to get everything working right
+    
+                    accelButton.addEventListener('click', function () {
+                        DeviceMotionEvent.requestPermission().then(response => {
+                            if (response == 'granted') {
+                                // Add a listener to get smartphone orientation 
+                                // in the alpha-beta-gamma axes (units in degrees)
+                                window.addEventListener('deviceorientation', (event) => {
+                                    const gyroscopeData = {
+                                        alpha: event.alpha,
+                                        beta: event.beta,
+                                        gamma: event.gamma
+                                    };
+    
+                                    // Check if enough time has passed since the last request
+                                    const currentTime = Date.now();
+                                    if (currentTime - lastSentTime >= delayBetweenRequests) {
+                                        // Send gyroscope data to Flask server
+                                        sendGyroscopeData(gyroscopeData);
+    
+                                        // Update the last sent time
+                                        lastSentTime = currentTime;
+                                    }
+                                    const recenterButton = document.getElementById('recenterButton');
+                                    recenterButton.addEventListener('click', function () {
+                                        sendRecenterRequest();
+                                    });
+                             
+                                    });
+                                
+                            }
+                        });
+                    });
+    
+                    function sendGyroscopeData(data) {
+                        // Make a POST request to your Flask server
+                        fetch('/store_gyroscope_data', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Success:', data);
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
+                    }
+    
+                });
+    
+                function sendRecenterRequest() {
                     fetch('/recenter_gyro', {
                         method: 'POST',
                         headers: {
@@ -85,18 +191,31 @@
                         .catch((error) => {
                             console.error('Recenter Error:', error);
                         });
+    
+    
+    
                 }
+    
+            </script>
+        </head>
+    
 
-        </script>
-    </head>
+    
 
-<body style="background-color:rgb(30, 78, 62);">
-    <button id="accelPermsButton" style="height:80px;">
-        <h1>Get Accelerometer Permissions</h1>
+    
+    
+    </body>
+    
+    </html>
+    <!-- Big red E-STOP button in the middle of the screen -->
+    <button id="estopButton"
+        style="height:800px; width:800px; background-color:red; color:white; font-size:24px; position:absolute; top:50%; left:50%; transform: translate(-50%, -50%);"
+        onclick="window.location.href='/estop_triggered'">
+        <h1>E-STOP</h1>
     </button>
-    <button id="recenterButton" style="height:80px;">
-        <h1>Recenter Gyro</h1>
-    </button>
+
+
+
 </body>
 
 </html>
