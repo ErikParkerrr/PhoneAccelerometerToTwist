@@ -16,10 +16,13 @@ SCALE_Z = 0.006
 DEADZONE_WIDTH_Z = 4
 DEADZONE_WIDTH_X = 2
 
+twist_topic_name = '/twist_topic'
+node_name = 'phone_gyro_node'
+
 def print_data_thread():
     global data
-    node = rclpy.create_node('accelerometer_publisher')
-    publisher = node.create_publisher(Twist, '/twist_topic', 10)
+    node = rclpy.create_node(node_name)
+    publisher = node.create_publisher(Twist, twist_topic_name, 10)
     msg = Twist()
 
     while True:
