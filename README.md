@@ -30,6 +30,8 @@ The E-STOP button the webpage will send all zeros in the Twist message. In the e
 
 * This repo has a dummy HTTPS certificate included with it. This is for testing purposes only. HTTPS is requried to get a phone to share IMU data so some certificate is needed. If using a dummy certificate, you must tell your browser to continue to the website as it will not be able to confirm the authenticity of the certificate. 
 
+* You must navigate to the webserver using HTTPS in the address bar or it may not work. Your browser may not add HTTPS by default.
+
 # Installation and Usage
 
 This software makes use of the flask and flask_cors packages
