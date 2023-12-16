@@ -13,8 +13,8 @@ data = None
 data_lock = threading.Lock()
 
 SCALE_X = 0.009
-SCALE_Z = 0.006
-DEADZONE_WIDTH_Z = 4
+SCALE_Z = 0.004
+DEADZONE_WIDTH_Z = 2
 DEADZONE_WIDTH_X = 2
 
 twist_topic_name = '/twist_topic'
@@ -82,14 +82,13 @@ def store_gyroscope_data():
 @app.route('/estop_triggered', methods=['GET', 'POST'])
 def estop_triggered():
     # Reset angular z and linear x values to zero
-    print("here1")
     with data_lock:
-        global data
-        data = []
-        if data is not None:
-            data['alpha'] = 0  # Set angular z to zero
-            data['beta'] = 0   # Set linear x to zero
-            print("here")
+        global data 
+        data = {} #make it a dictionary again
+        if data is not None: #safety net, not really needed
+            data['alpha'] = 0.0  # Set angular z to zero
+            data['beta'] = 0.0   # Set linear x to zero
+            data['gamma'] = 0.0   # Set linear x to zero
 
     return 'E-STOP Triggered. Swipe back to the main page to drive again.'
 
@@ -108,9 +107,6 @@ def recenter_gyro():
                 data['alpha'] -= 360  # Convert to range [-180, 180)
 
     return jsonify({'message': 'Gyro recentered successfully'})
-
-
-
 
 
 if __name__ == '__main__':
