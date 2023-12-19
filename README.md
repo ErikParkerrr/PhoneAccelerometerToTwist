@@ -34,6 +34,8 @@ The E-STOP button on the webpage will send all zeros in the Twist message. In th
 
 # Installation and Usage
 
+This program has only been tested to work with ROS2 Humble Desktop. I'm rather sure it would work with most distributions of ROS2, but please test. Please install ROS2 Humble before continuing to the rest of the instructions.
+
 This software makes use of the flask and flask_cors packages
 
     pip install flask
